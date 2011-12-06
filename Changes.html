@@ -1,0 +1,158 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title></title>
+</head>
+
+<body>
+<h1></h1>
+
+<h2>Version 0.6-0</h2>
+Improvements to the code generation mechanism.
+
+<dl>
+<dt>
+<li>  writeCode has a namespace parameter to control whether the
+      NAMESPACE file is written.
+
+<dt>  writeNamespace is now exported.
+<li>
+
+<dt>  
+<li>  writeCode returns information that can be passed to writeNamespace.
+
+<dt>
+<li>  Processing of the classes and determining the unique names is done
+      in generateInterface() rather than writeCode.  This makes 
+      dealing with the namespace easier.
+      
+</dl>
+
+<h2>Version 0.5-0</h2>
+<dl>
+ <dt>
+ <li>Changes to the C code to deal with changes to 
+   changes in R about how strings are stored.
+
+  <dt> Enhancements to the code generation mechanism from type library information.
+  <li> Handle CoClass types, enums written as individual variables by default,
+       run time code is now in RDCOMClient, etc.
+</dl>
+<h2>Version 0.4-4</h2>
+
+ <dt>
+ <li> Code generation mechanism for creating R code from 
+      a type library.
+ <dd> The resulting code is slightly more efficient and 
+      provides much more information at run time about the
+      types and possible methods for a DCOM interface.
+
+ <dt>
+ <li> LoadTypeLib() is now generic with methods for 
+      for an ITypeInfo or COMIDispatch object. 
+      These ensure that the proper type library is loaded.
+      This should be used in preference to getTypeLib() until the latter 
+      is modified.
+ <dd>
+
+  <dt>
+  <li>  getTypeLib() for an ITypeInfo or COMIDispatch object now 
+       returns an object of class IContainingTypeLib.  This is slightly
+       different from a regular ITypeLib that is loaded from a file.
+       Note that one can get the complete ITypeLib via LoadTypeLib()
+       on the same object.
+  <dd>
+
+ <dt>
+ <li> queryTypeLibPath() returns information about the location of the type library
+      for an ITypeInfo or COMIDispatch object. 
+ <dd>
+
+
+<h2>Version 0.4-3</h2>
+ <dt>
+ <li> getElements() now supports ITypeInfoAlias objects.
+ <dd>
+
+<h2>Version 0.4-2</h2>
+<dl> 
+
+
+ <dt>
+ <li> ParameterDescription class no longer has an optional slot.
+ <dd> It is in the ParameterStyle class.
+
+ <dt>
+ <li> getElements("ITypeCoClass") creates objects of derived
+      classes of ITypeInfo, e.g. ITypeInfoDispatch rather than
+       just generic ITypeInfo objects.
+ <dd>
+
+ <dt>
+ <li> getElements("ITypeLib") puts the names of the types 
+      on the resulting list.  These are the human-readable names
+      taken from the names("ITypeLib") method.
+ <dd>
+ 
+ <dt>
+ <li> [[ method for indexing the elements of a ITypeInfoCoClass.
+ <dd>
+ <dt>
+ <li> lapply and sapply methods to iterate over the elements in an ITypeLib.
+ <dd>
+
+ <dt>
+ <li> Name slot for the parameter descriptions objects now filled in.
+ <dd>
+
+ <dt> 
+ <li> Classes for the different types of ITypeInfo objects.
+ <dd>  ITypeInfoDispatch, ITypeInfoCoclass, ...
+
+ <dt>
+ <li> getElements() is generic and added methods for 
+      ITypeLib and the different ITypeInfo* classes above.
+ <dd>
+
+ <dt>
+ <li> Added names to the elements returned by 
+       getElements() for a coclass ITypeLibEntry.
+ <dd> These make the results more human readable.
+
+ <dt>
+ <li> Added getTypeLib() generic for character and ITypeLib.
+ <dd> Implemented method for COMIDispatch instance.
+
+ <dt>
+ <li>  Removed the class ITypeLibEntry as it was identical to ITypeInfo.
+ <dd>
+
+</dl>
+
+
+
+<h2>Version 0.4-1</h2>
+<dl>
+ <dt> Binary built for R 1.8.*
+ <dd>
+</dl>
+
+<h2>Version 0.4-0</h2>
+<dl>
+ <dt> Support for indexing a type library by the UUID of an entry.
+ <dd>
+</dl>
+<h2>Version 0.2-1</h2>
+<dl>
+ <dt>
+ <li> Names on the parameters in a function definition.
+ <dd>
+</dl>
+
+
+<hr>
+<address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
+<a href=mailto:duncan@wald.ucdavis.edu>&lt;duncan@wald.ucdavis.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Tue Aug 30 10:58:16 Pacific Standard Time 2005
+<!-- hhmts end -->
+</body> </html>

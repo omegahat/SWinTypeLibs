@@ -1,0 +1,307 @@
+<article xmlns:s="http://cm.bell-labs.com/stat/S4"
+         xmlns:r="http://www.r-project.org"
+         xmlns:c="http://www.C.org"
+         xmlns:com="http://www.microsoft.com"
+>
+
+<section>
+<title>The SWinTypeLibs package</title>
+<para>
+This package allows R users to explore type information coming from
+either type libraries or COM objects.  The functions provide
+information about a class in terms of its properties; methods and
+their argument and return types; the names and values of enumerated
+types, and fields in structures and unions.
+</para>
+
+<para>
+One can find type information by loading a type library or by
+obtaining a reference to a COM object.  Suppose we have the ADO
+(ActiveX Data Object) library on our system at it is located at
+<file>C:/Program Files/Common Files/system/ado/msado15.dll</file>.
+(On your machine, it may be named and located differently
+or simply not present at all.)
+We load that library using <s:func>LoadTypeLib</s:func>
+<s:code>
+lib = LoadTypeLib("C:/Program Files/Common Files/system/ado/msado15.dll")
+</s:code>
+
+</para>
+<para>
+The resulting <s:var>lib</s:var> is a reference or handle to the
+C-level structure that identifies the object.  We can use this to
+examine the different elements about which the library provides type
+information.  When we are finished with it, we can release the library
+and free the resources it uses using <s:func>UnloadTypeLib</s:func>. <note/>(Not
+implemented yet.)
+</para>
+<para>
+Essentially we can treat the type library as a named list.
+Each element is an object of type <s:class>ITypeInfo</s:class> in our
+world.  This provides a reference to the element in the type library
+and from that we can find out most things about that type.
+</para>
+<para>
+Since the library reference is equivalent to a list
+in S,  we can find out the names
+of the different elements it contains using
+<s:code>
+names(lib)
+</s:code>
+</para>
+<para>
+As one might expect, we can extract elements from the type
+library in the S style using the usual list subsetting
+operators:
+<s:code>
+ lib[[1]]  # Single element.
+ lib[1:4]  # Returns a list, not a sub-ITypeLib
+
+ lib[["CursorTypeEnum"]] # By type name 
+ lib[[names(lib)[1]]]    # Same thing.
+ lib$CursorTypeEnum      # Same thing.
+</s:code>
+</para>
+<para>
+Now that we know how to navigate the elements of the type library,
+we can examine its elements.
+</para>
+<para>
+We can also find out the types of these different elements
+in the library
+using <r:func>getTypeLibTypes</r:func>.
+<s:code>
+getTypeLibTypes(lib)
+</s:code>
+</para>
+
+<para>
+This describes the type of each element in the library by its type
+name such as dispatch, coclass, enum, interface, alias, module, union,
+record/structure.  These are indexed by the names of the type.  If one
+wants to get the actual numeric type rather than the text descriptions
+(so that they can be used within the C code), use the
+<s:arg>byName</s:arg> argument and specify <s:false/>.
+</para>
+<para>
+This information is convenient for being able to get a
+big picture view of what the type library contains.
+We can see what are enumerated constants, what are types
+with methods (dispatch), and so on.  We can identify the elements
+that might be of interest based on their name and/or type.
+We can then ``zoom in'' and look at the type information for individual
+elements of the type library.  We get a reference to the underlying C
+<c:struct>ITypeInfo</c:struct> object using the overloaded 
+<s:operator>[[</s:operator> we discussed above.  One
+can index the type library reference either by the name or position of
+the desired element:
+<s:code>
+cmd = lib[["Command"]]
+</s:code>
+or
+<s:code>
+cmd = lib[[91]]
+</s:code>
+
+We can then get the details of the type of this element using this
+R object.  For example, we can find the collection of values in the
+enumeration <com:type>BookMarkEnum</com:type>.
+
+<s:code>
+getEnum(cmd)
+</s:code>
+
+Suppose we wanted to find all the enumerations
+within a library and obtain their definitions
+as a name-value vector for each enum type.
+We can do this in two steps
+<s:code>
+types = getTypeLibTypes(lib)
+enums = which(types == "enum")
+
+lapply(enums, function(x) getEnum(lib[[x]]))
+</s:code>
+
+
+<!-- This seems like a left over
+<s:code>
+getVars(lib[["FieldEnum"]])
+</s:code>
+-->
+
+If an element in the type library is a coclass type info object, then
+it can represent multiple interfaces. We get a list of the
+<s:class>ITypeInfo</s:class> objects for each of these interfaces by
+calling <s:func>getElements</s:func>.  We can the operate on each of
+these <s:class>ITypeInfo</s:class> elements as we do above.  The
+<s:func>getElements</s:func> function has a <s:arg>recursive</s:arg>
+argument.
+
+
+<section>
+<title>Functions/Methods</title>
+An IDispatch type (or type "dispatch")
+is a class that contains methods that one can invoke
+dynamically.
+The type library provides a description of each of these methods.
+Let's consider the Excel class <com:class>Workbooks</com:class>.
+We load the Excel type library, e.g.
+<s:code>
+ lib = LoadTypeLib("c:/Micrsoft Office/OFFICE11/Excel.exe") 
+</s:code>
+or referencing the appropriate file.
+
+To get the Workbooks class, we use the command
+<s:code>
+ workbooks = lib[["Workbooks"]]
+</s:code>.
+This is an object of class 
+<s:class>ITypeInfoDispatch</s:class>
+indicating that it is indeed describing an
+IDispatch class.
+So from this we can directly 
+get the list of functions defined by that
+particular IDispatch class:
+<s:code>
+ funs = getFuncs(workbooks) 
+</s:code>
+
+
+This is a regular list in R.
+The names of the elements are the names of the
+functions/operations.
+<s:code> 
+ names(funs)
+</s:code>
+The first seven entries are common to all IDispatch
+objects. These provide ways to query the object
+and dynamically invoking methods and accessing properties.
+The remaining elements are more interesting from the
+user's perspective. These tell us what we can do with this
+class of object.
+
+<para/>
+Some of the names have a  curious _ and __ in front of
+them. For instance, we have an OpenText,
+_OpenText and __OpenText entries!
+If we look at the number of parameters in each function,
+we get 
+<s:code>
+sapply(funcs[grep("OpenText", names(funcs))],
+        function(x) length(x@parameters))
+
+__OpenText _OpenText  OpenText
+      14      16       18
+</s:code>
+The _ and __ suggest somehow that these are not necessarily
+part of the user-level interface.
+They are somehow being obfuscated or obscured.
+Indeed, if we look at the hidden field of each of
+these function descriptions, we see that the first two are
+indeed hidden.
+<s:code>
+sapply(funcs[grep("OpenText", names(funcs))],
+          function(x) x@hidden
+</s:code>
+
+<note>THIS IS INCORRECT. Everything seems to be hidden,i.e.
+every function in every type.</note>
+
+
+<question>Do any of these sometimes relate to properties?</question>
+
+
+Let's look at the Open method.
+<s:code>
+ open = funcs$Open
+</s:code>
+This is an instance of the 
+<s:class>FunctionInvokeDescription</s:class>.
+We can find out more about this class using
+
+<s:code>
+getSlots(class(open))
+</s:code>
+We see that we have all of the essential ingredients
+of a function, and a few more.
+The name, the return type, the list of parameters
+are all of the things we need to make sense of the
+function so that we can invoke it.
+
+The invokeType, hidden and memid 
+(and kind)
+values are internal information that help in actually
+implementing the call.
+<question>Is the memid here the DISPID we have to ask for?</question>
+The invokeType tells us whether we are dealing with getting or setting
+a property (propertyget or propertyput or propertyref) or invoking a
+method (func).  These different types of methods are identified by
+different classes of object in R.  We have FunctionInvokeDescription,
+PropertyGetDescription, PropertySetDescription,
+PropertySetRefDescription.
+
+Accessors that are hidden should not be invoked.
+<question>Are all functions hidden in Application</question>
+
+
+
+
+
+</section>
+
+<section>
+<title>COMIDispatch objects</title>
+
+
+If we have a COM object, we might want to find out about its available
+methods. For example, if we are not certain what we have, we may want
+to get its type to determine what we can do with it.  Or we may want
+to explicitly generate an interface to all the functions for that
+object.  
+We can use many of the functions we discussed earlier 
+with a <com:class>COMIDispatch</com:class> object.
+For instance, we can ask for the 
+ITypeInfo for the COMIDispatch object
+using
+<s:code>getTypeInfo(obj)</s:code>
+Similarly, we can get the ITypeLib
+from the object using
+<s:code>getTypeLib</s:code>.
+
+We can also call 
+<s:func>getFuncs</s:func> on the object to get the collection of
+functions.
+
+</section>
+
+
+</section>
+
+
+
+<section>
+<title>Future Work/"To do"</title>
+<itemizedlist>
+<listitem>
+Record classes
+</listitem>
+
+<listitem>
+Check the number of names of the parameters is 
+what we expect and not one less for PROPERTY_PUT methods.
+</listitem>
+</itemizedlist>
+</section>
+
+<section>
+<title>Bibliography</title>
+See
+<link>http://archive.devx.com/upload/free/features/vcdj/2000/03mar00/fg0300/fg0300.asp</link>
+for an article describing aspects of type libraries.
+Gone now (June '05)
+
+<link>http://www.geocities.com/cool_ranju/tlibs.html</link>
+
+</section>
+
+</article>

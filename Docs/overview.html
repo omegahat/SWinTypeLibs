@@ -1,0 +1,276 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"><head><meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title></title><link rel="stylesheet" type="text/css" href="/Users/duncan/Classes/StatComputing/XDynDocs/inst/CSS/OmegaTech.css"></link><meta name="generator" content="DocBook XSL Stylesheets V1.76.1"></meta><script xmlns="" type="text/javascript" src="http://www.omegahat.org/DynDocs/JavaScript/toggleHidden.js"></script>
+</head><body class="yui-skin-sam">
+<script xmlns="" type="text/javascript"><!--
+var toggleCodeIds = [
+ 
+];
+--></script><p xmlns=""></p>
+<div class="article"><div class="titlepage"><hr></hr></div><div class="section" title="The SWinTypeLibs package"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idm22777264"></a>The SWinTypeLibs package</h2></div></div></div>
+
+This package allows R users to explore type information coming from
+either type libraries or COM objects.  The functions provide
+information about a class in terms of its properties; methods and
+their argument and return types; the names and values of enumerated
+types, and fields in structures and unions.
+
+One can find type information by loading a type library or by
+obtaining a reference to a COM object.  Suppose we have the ADO
+(ActiveX Data Object) library on our system at it is located at
+<code xmlns="" xmlns:r="http://www.r-project.org" xmlns:s="http://cm.bell-labs.com/stat/S4" xmlns:c="http://www.C.org" xmlns:python="http://www.python.org" xmlns:perl="http://www.perl.org" xmlns:vb="http://www.visualbasic.com" xmlns:omegahat="http://www.omegahat.org" xmlns:bioc="http://www.bioconductor.org" xmlns:java="http://www.java.com" xmlns:statdocs="http://www.statdocs.org" xmlns:gtk="http://www.gtk.org" xmlns:com="http://www.microsoft.com" xmlns:sh="http://www.shell.org" class="file">C:/Program Files/Common Files/system/ado/msado15.dll</code>.
+(On your machine, it may be named and located differently
+or simply not present at all.)
+We load that library using <i xmlns="" class="rfunc"><a href="Help//LoadTypeLib.html" title="">LoadTypeLib()</a></i><pre xmlns="" class="S">
+lib = LoadTypeLib("C:/Program Files/Common Files/system/ado/msado15.dll")
+</pre>
+<br xmlns="">
+
+The resulting <b xmlns="" class="$" title="">lib</b> is a reference or handle to the
+C-level structure that identifies the object.  We can use this to
+examine the different elements about which the library provides type
+information.  When we are finished with it, we can release the library
+and free the resources it uses using <i xmlns="" class="rfunc"><a href="Help//UnloadTypeLib.html" title="">UnloadTypeLib()</a></i>. <div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="/Users/duncan/Classes/StatComputing/XDynDocs/inst/XSL/docbook-xsl-current/images/note.svg"></img></td><th align="left">Note</th></tr><tr><td align="left" valign="top"></td></tr></table></div>(Not
+implemented yet.)
+
+<p></p> 
+Essentially we can treat the type library as a named list.
+Each element is an object of type <i xmlns=""><a href="Help/ITypeInfo-class.html">ITypeInfo</a></i> in our
+world.  This provides a reference to the elemenet in the type library
+and from that we can find out most things about that type.
+
+<p></p>
+Since the library reference is equivalent to a list
+in S,  we can find out the names
+of the different elements it contains using
+<pre xmlns="" class="S">
+names(lib)
+</pre>
+<br xmlns="">
+
+As one might expect, we can extract elements from the type
+library in the S style using the usual list subsetting
+operators:
+<pre xmlns="" class="S">
+ lib[[1]]  # Single element.
+ lib[1:4]  # Returns a list, not a sub-ITypeLib
+
+ lib[["CursorTypeEnum"]] # By type name 
+ lib[[names(lib)[1]]]    # Same thing.
+ lib$CursorTypeEnum      # Same thing.
+</pre>
+<br xmlns=""><p></p>
+Now that we know how to navigate the elements of the type library,
+we can examine its elements.
+
+
+We can also find out the types of these different elements
+in the library
+using \SFunction{getTypeLibTypes}.
+<pre xmlns="" class="S">
+getTypeLibTypes(lib)
+</pre>
+<br xmlns="">
+
+This describes the type of each element in the library by its type
+name such as dispatch, coclass, enum, interface, alias, module, union,
+record/structure.  These are indexed by the names of the type.  If one
+wants to get the actual numeric type rather than the text descriptions
+(so that they can be used within the C code), use the
+<i xmlns="" class="rarg">byName</i> argument and specify <i xmlns=""><code>FALSE</code></i>.
+
+<p></p>
+This information is convenient for being able to get a
+big picture view of what the type library contains.
+We can see what are enumerated constants, what are types
+with methods (dispatch), and so on.  We can identify the elements
+that might be of interest based on their name and/or type.
+We can then ``zoom in'' and look at the type information for individual
+elements of the type library.  We get a reference to the underlying C
+<b xmlns="" xmlns:c="http://www.C.org" xmlns:cpp="http://www.cplusplus.org" class="cstruct">ITypeInfo</b> object using the overloaded 
+<code xmlns="" class="sfunction">[[</code> we discussed above.  One
+can index the type library reference either by the name or position of
+the desired element.
+
+<pre xmlns="" class="S">
+cmd = lib[["Command"]]
+</pre>
+<br xmlns="">
+
+or
+<pre xmlns="" class="S">
+cmd = lib[[91]]
+</pre>
+<br xmlns="">
+
+We can then get the details of the type of this element using this
+R object.  For example, we can find the collection of values in the
+enumeration <span style="color: red">&lt;com:type&gt;BookMarkEnum&lt;/com:type&gt;</span>.
+
+<pre xmlns="" class="S">
+getEnum(cmd)
+</pre>
+<br xmlns="">
+
+Suppose we wanted to find all the enumerations
+within a library and obtain their definitions
+as a name-value vector for each enum type.
+We can do this in two steps
+<pre xmlns="" class="S">
+types = getTypeLibTypes(lib)
+enums = which(types == "enum")
+
+lapply(enums, function(x) getEnum(lib[[x]]))
+</pre>
+<br xmlns="">
+
+If an element in the type library is a coclass type info object, then
+it can represent multiple interfaces. We get a list of the
+<i xmlns=""><a href="Help/ITypeInfo-class.html">ITypeInfo</a></i> objects for each of these interfaces by
+calling <i xmlns="" class="rfunc"><a href="Help//getElements.html" title="">getElements()</a></i>.  We can the operate on each of
+these <i xmlns=""><a href="Help/ITypeInfo-class.html">ITypeInfo</a></i> elements as we do above.  The
+<i xmlns="" class="rfunc"><a href="Help//getElements.html" title="">getElements()</a></i> function has a <i xmlns="" class="rarg">recursive</i>
+argument.
+
+
+<div class="section" title="Functions/Methods"><div class="titlepage"><div><div><h3 class="title"><a id="idp6495648"></a>Functions/Methods</h3></div></div></div>
+An IDispatch type (or type "dispatch")
+is a class that contains methods that one can invoke
+dynamically.
+The type library provides a description of each of these methods.
+Let's consider the Excel class <i xmlns=""><a href="Help/Workbooks-class.html">Workbooks</a></i>.
+We load the Excel type library, e.g.
+<pre xmlns="" class="S">
+ lib = LoadTypeLib("c:/Micrsoft Office/OFFICE11/Excel.exe") 
+</pre>
+<br xmlns="">
+or referencing the appropriate file.
+
+To get the Workbooks class, we use the command
+<pre xmlns="" class="S">
+ workbooks = lib[["Workbooks"]]
+</pre>
+<br xmlns="">.
+This is an object of class 
+<i xmlns=""><a href="Help/ITypeInfoDispatch-class.html">ITypeInfoDispatch</a></i>
+indicating that it is indeed describing an
+IDispatch class.
+So from this we can directly 
+get the list of functions defined by that
+particular IDispatch class:
+<pre xmlns="" class="S">
+ funs = getFuncs(workbooks) 
+</pre>
+<br xmlns="">
+
+
+This is a regular list in R.
+The names of the elements are the names of the
+functions/operations.
+<pre xmlns="" class="S"> 
+ names(funs)
+</pre>
+<br xmlns="">
+The first seven entries are common to all IDispatch
+objects. These provide ways to query the object
+and dynamically invoking methods and accessing properties.
+The remaining elements are more interesting from the
+user's perspective. These tell us what we can do with this
+class of object.
+
+<p></p>
+Some of the names have a  curious _ and __ in front of
+them. For instance, we have an OpenText,
+_OpenText and __OpenText entries!
+If we look at the number of parameters in each function,
+we get 
+<pre xmlns="" class="S">
+sapply(funcs[grep("OpenText", names(funcs))],
+        function(x) length(x@parameters))
+
+__OpenText _OpenText  OpenText
+      14      16       18
+</pre>
+<br xmlns="">
+The _ and __ suggest somehow that these are not necessarily
+part of the user-level interface.
+They are somehow being obfuscated or obscured.
+Indeed, if we look at the hidden field of each of
+these function descriptions, we see that the first two are
+indeed hidden.
+<pre xmlns="" class="S">
+sapply(funcs[grep("OpenText", names(funcs))],
+          function(x) x@hidden
+</pre>
+<br xmlns=""><div class="note" title="Note" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Note]" src="/Users/duncan/Classes/StatComputing/XDynDocs/inst/XSL/docbook-xsl-current/images/note.svg"></img></td><th align="left">Note</th></tr><tr><td align="left" valign="top">THIS IS INCORRECT. Everything seems to be hidden,i.e.
+every function in every type.</td></tr></table></div><tr class="question" title="."><td align="left" valign="top"><a id="idp6495648"></a><a id="idp6501536"></a><p><strong>.</strong></p></td><td align="left" valign="top"></td></tr>
+
+
+Let's look at the Open method.
+<pre xmlns="" class="S">
+ open = funcs$Open
+</pre>
+<br xmlns="">
+This is an instance of the 
+<i xmlns=""><a href="Help/FunctionInvokeDescription-class.html">FunctionInvokeDescription</a></i>.
+We can find out more about this class using
+
+<pre xmlns="" class="S">
+getSlots(class(open))
+</pre>
+<br xmlns="">
+We see that we have all of the essential ingredients
+of a function, and a few more.
+The name, the return type, the list of parameters
+are all of the things we need to make sense of the
+function so that we can invoke it.
+
+The invokeType, hidden and memid 
+(and kind)
+values are internal information that help in actually
+implementing the call.
+<tr class="question" title="."><td align="left" valign="top"><a id="idp6495648"></a><a id="idp6503424"></a><p><strong>.</strong></p></td><td align="left" valign="top"></td></tr>
+The invokeType tells us whether we are dealing with getting or setting
+a property (propertyget or propertyput or propertyref) or invoking a
+method (func).  These different types of methods are identified by
+different classes of object in R.  We have FunctionInvokeDescription,
+PropertyGetDescription, PropertySetDescription,
+PropertySetRefDescription.
+
+Accessors that are hidden should not be invoked.
+<tr class="question" title="."><td align="left" valign="top"><a id="idp6495648"></a><a id="idp6504224"></a><p><strong>.</strong></p></td><td align="left" valign="top"></td></tr></div><div class="section" title="COMIDispatch objects"><div class="titlepage"><div><div><h3 class="title"><a id="idp6504736"></a>COMIDispatch objects</h3></div></div></div>
+
+
+If we have a COM object, we might want to find out about its available
+methods. For example, if we are not certain what we have, we may want
+to get its type to determine what we can do with it.  Or we may want
+to explicitly generate an interface to all the functions for that
+object.  
+We can use many of the functions we discussed earlier 
+with a <i xmlns=""><a href="Help/COMIDispatch-class.html">COMIDispatch</a></i> object.
+For instance, we can ask for the 
+ITypeInfo for the COMIDispatch object
+using
+<pre xmlns="" class="S">getTypeInfo(obj)</pre>
+<br xmlns="">
+Similarly, we can get the ITypeLib
+from the object using
+<pre xmlns="" class="S">getTypeLib</pre>
+<br xmlns="">.
+
+We can also call 
+<i xmlns="" class="rfunc"><a href="Help//getFuncs.html" title="">getFuncs()</a></i> on the object to get the collection of
+functions.
+
+</div></div><div class="section" title='Future Work/"To do"'><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp6507616"></a>Future Work/"To do"</h2></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem">
+Record classes
+</li><li class="listitem">
+Check the number of names of the parameters is 
+what we expect and not one less for PROPERTY_PUT methods.
+</li></ul></div></div><div class="section" title="Bibliography"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a id="idp6509648"></a>Bibliography</h2></div></div></div>
+See
+http://archive.devx.com/upload/free/features/vcdj/2000/03mar00/fg0300/fg0300.asp
+for an article describing aspects of type libraries.
+Gone now (June '05)
+
+http://www.geocities.com/cool_ranju/tlibs.html</div></div></body></html>

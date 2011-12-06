@@ -1,0 +1,81 @@
+useDynLib(SWinTypeLibs)
+
+importClassesFrom(RDCOMClient, COMIDispatch, COMList, 
+                               CompiledCOMIDispatch, CompiledCOMCoClass)
+
+
+# Vital that we import these!
+importFrom(RDCOMClient, sapply, lapply)
+
+exportClasses("ITypeLib", "IContainingTypeLib", "ITypeLibIdentifier", "INamedTypeLib",
+              "ITypeInfo", "TypeDescription", 
+               "RCOMEventInterfaceDefinition")
+
+exportClasses(
+	"ITypeInfoEnum", 
+	"ITypeInfoRecord", 
+	"ITypeInfoModule",
+	"ITypeInfoInterface",
+	"ITypeInfoDispatch",
+	"ITypeInfoCoClass",
+	"ITypeInfoAlias",
+	"ITypeInfoUnion")
+
+exportClasses("PointerTypeDescription",
+              "TypeDescriptionRef", "ParameterStyle", "ParameterDescription",
+              "ElementDescription", "VariableDescription", "FunctionDescription",
+              "PropertyGetDescription", "PropertySetDescription",
+	      "PropertySetRefDescription", "FunctionInvokeDescription"
+             )
+
+export(getEnum, getFuncs)
+
+export(getConverterFunction, computeFunctionInformation, 
+       generateOperators, createCOMSClass)
+
+export(LoadTypeLib, getTypeInfo, getTypeLibTypes,
+        getTypeLibUUIDs, getRefTypeInfo, getRefTypeName,
+        getTypeDocumentation, getElements,
+        getTypeLib, getTypeByUUID)
+
+exportMethods(getTypeLibUUIDs)
+
+export(queryTypeLibPath, LoadRegTypeLib)
+
+
+# export(getTypeLibInfo)
+# TypeKinds
+# isOptional
+export(getNameIDs)
+
+
+exportClasses(RCOMTypeInterfaceDefinition, RCOMEventInterfaceDefinition, RCOMDispatchInterfaceDefinition)
+
+exportClasses(COMOperationDefinition, COMMethodDefinition, 
+              COMEventDefinition, COMPropertySetDefinition, COMPropertyGetDefinition)
+
+exportClasses("RCOMTypeLibraryInterfaceDefinition", "RCOMTypeInterfaceDefinition")
+
+  # Code for generating interfaces to code from a type library.
+export(generateClass, generateInterface, generateEventInterface, writeCode, writeNamespace)
+
+#     generateEventHandler, define
+
+exportMethods("sapply", "lapply", "names", "$", "length", "[", "[[", "show")
+#, "merge")
+
+
+exportClasses("ClassDefinition", "NamedClassDefinition", "InlineClassDefinition", 
+               "ExternalClassDefinition")
+
+
+export(getTypeLibEventElements)
+export(getTypeLibInfo)
+
+export(INamedTypeLib)
+# export(.Call)
+
+importFrom(RDCOMClient, createTypeVarName)
+exportMethods(createTypeVarName)
+
+exportMethods(dput)

@@ -1,0 +1,3 @@
+PKG_CPPFLAGS=-DUSE_R=1 -D_R_=1
+PKG_LIBS=-lole32 -loleaut32 -luuid
+# libole32.a liboleaut32.a

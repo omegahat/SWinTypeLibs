@@ -1,0 +1,79 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>The @PKG_NAME@ package</title>
+<link rel="stylesheet" href="OmegaTech.css">
+</head>
+
+<body>
+<h1>The @PKG_NAME@ package  (version @MAJOR_VERSION@.@MINOR_VERSION@-@PATCH_LEVEL@)</h1>
+
+
+This package provides access to the Windows <a
+href="http://msdn.microsoft.com/library">type libraries</a> from
+within S.  It allows the S user to read the contents of a DLL, Type
+Library or (D)COM object, and represent the resulting information as S
+objects.  This includes information such as classes and interfaces,
+enumerations, methods and their argument and return types, etc.
+Essentially, this offers a form of reflectance. This meta-information
+from the type library can be used to programmatically generate
+interfaces to the code described by the type library.
+
+<p/>
+
+Type libraries can be found on the Windows system either directly or
+using the Windows registry which can be accessed from S using the <a
+href="">SWinRegistry</a>
+
+
+
+
+
+<h2><a name="Download">Download</a></h2>
+
+We provide both a <a href="@TAR_SRC_FILE@">source version</a> and a <a
+href="@ZIP_FILE@">binary version</a> of the package. 
+
+<p>
+
+See <a href="README.html">README.html</a> and <a
+href="INSTALL.html">INSTALL.html</a> for instructions on installing
+and using the package.
+
+<p>
+
+A brief history of the recent changes to the package
+are available in the <a href="Changes.html">Changes.html</a> file.
+
+
+
+<h2><a name="Documentation">Documentation</a></h2>
+
+There are some early attempts to document the package.
+More to come!
+
+<dl>
+  <dt>
+  <li> <a href="overview.html">Brief Overview</a>
+  <dd>
+  
+  <dt>
+  <li> <a href="Todo.html">Todo list</a>
+  <dd> List of (some of the) things yet to be done
+       related to this packge!
+
+  <dt>
+  <li> <a href="examples">Examples</a>
+  <dd>
+      
+</dl>
+
+
+
+
+<hr>
+<address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
+<a href=mailto:duncan@wald.ucdavis.edu>&lt;duncan@wald.ucdavis.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: @DATE@
+<!-- hhmts end -->
+</body> </html>

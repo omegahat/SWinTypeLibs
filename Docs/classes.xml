@@ -1,0 +1,13 @@
+ITypeLib
+ITypeInfo
+   ITypeInfoDispatch
+   ITypeInfoEnum
+
+TypeDescription
+PointerTypeDescription
+TypeDescriptionRef
+ParameterStyle
+ParameterDescription
+ElementDescription
+VariableDescription
+FunctionDescription

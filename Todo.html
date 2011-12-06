@@ -1,0 +1,233 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title></title>
+</head>
+
+<body>
+<h1></h1>
+
+<dl>
+
+  <dt>
+  <li> Does getRefTypeName() really need the reference? Can we get it from the ref
+  <dd>
+
+  <dt>
+  <li> Why does getElements not take the names of the entries and a library
+    and work in a vectorized manner.
+  <dd>
+
+
+  <dt>
+  <li> See if we can get LoadTypeLib("Excel.Application") to work.
+  <dd> Ideally, don't create a new instance of the application.
+
+  <dt>
+  <li> Add support for enumerations in generated code.
+  <dd> Done.
+
+  <dt>
+  <li> Get the event material finished.
+  <dd>  Done, I think.
+    <ul>
+    <li> Tune the function to get event interfaces from the type library.
+    </ul>
+  
+ 
+
+ <dt>
+ <li>  Make getElements() work for alias.
+ <dd>
+
+ <dt>
+ <li> Arrange the .COM call in the methods with missing arguments handled correctly.
+ <dd>  Modify generateMethod()
+
+ <dt>
+ <li> Can we determine the default value of a parameter.
+ <dd> See R_describeParameter.
+
+ <dt>
+ <li> Figure out why table() is seg-faulting after some operations.
+ <dd>
+   Need some examples.
+   <br>
+    I was seeing some segfaults also after accessing lib[ ]
+
+
+ <dt> ITypeComp for access to globals, etc.?
+ <dd> 
+
+ <dt> Hidden fields.
+ <dd> Hidden flag for functions/properties.
+
+ <dt> Get the TYPEFLAGS for an ITypeInfo, etc.
+ <dd>
+
+
+ <dt> Duplicate entries.
+ <dd> In the getFuncs().
+    They are legitimate, I think, but it would be good to have
+     classes for them, e.g. PropertyGet, PropertyPut.
+
+ <dt> Arrays in RDCOMClient.
+ <dd>
+
+ <dt>
+ <li> Optionally, put a name on a getTypeInfo(com.instance)
+ <dd> Read the type library, get the name, etc.
+
+ <dt>
+ <li> create a COMError class and raise that 
+      so that people can handle it in a tryCatch().
+ <dd> Move (and share) this with  DCOMClient.
+
+ <dt>
+ <li> Methods for the "show" generic for different classes.
+ <dd> Pretty printing.
+
+
+ <dt>
+ <li> getTypeInfo for IConnectionPoint objects.
+ <dd>
+
+ <dt>
+ <li> Use the DISPID/memid in the ElementDescriptionType to avoid 
+      having to do the lookup of the DISPID first.
+
+ <dd> i.e. compile this into C code.
+      Also, the .COM accepts the dispatch argument, so can use it directly
+      when generating bindings.
+
+
+ <dt>
+ <li> handle records, modules, aliases for types.
+ <dd>  Get some examples.     
+
+ <dt>
+ <li> types of the variants in the arguments.
+ <dd> VARIANT_BOOL, VARIANT, etc.     
+      
+ <dt>
+ <li> sort out the type objects when pointers.
+ <dd>
+
+ <dt>
+ <li> UnloadTypeLib
+ <dd>  Does it automatically happen when we remove the handle to it
+   by referencing counting? Or do we explicitly have to release it?
+   Do we have to unregister it?
+
+       
+</dl>
+
+<h3>Done</h3>
+<dl>
+
+ <dt>
+ <li> QueryPathOfRegTypeLib
+ <dd> 
+      Need guid, version, language.
+      <br>
+
+
+ <dt> Accessing existing object rather than creating a new one.
+ <dd>  getCOMInstance().   GetActiveObject?
+
+
+  <dt>
+  <li> Make the COMTypedList work with, for example,  _Workbook rather than Workbooks
+  <dd> We can resolve the Workbook element in the library and then if this is 
+     not a dispatch object, then resolve its coclass and see if there is 
+      _&lt;name&gt; element there and use that.
+      Without class fields, we have to store the name of the type 
+      in the COMList class. Perhaps we need to define
+      a new one such as 
+        setClass("Workbooks", contains = "COMTypedNamedList",
+                   prototype = list(name = "_Workbook"))
+
+<br>
+      So we need to add this to the output.
+      We need to return an object that will print appropriately.
+
+
+ <dt> TypeLibrary attributes?  GetLibAttr?
+ <dd>  getTypeLibInfo().
+
+ <dt>
+ <li> Lookup an element in the type library indexed by UUID
+ <dd> By guid or uuid ?  
+    <br>
+   getTypeByUUID(id, lib)
+   Can add this to the [[. <font color="red">Done.</font>
+<br>
+   getTypeLibUUIDs(lib)
+    
+
+ <dt>
+ <li>  Get type library from an object.
+ <dd>  Done.     
+
+
+ <dt>
+ <li>  reftype in ParameterDescription
+ <dd>  getFuncs(lib[["IAppEvents"]])$SheetChange@parameters[[2]]@type
+
+  Note that for the AppEvents class, we get a different reftype value
+   50377248 (rather than 45600)
+<br>
+    getRefTypeInfo()
+
+ <dt>
+ <li> Change the type of the function if it is a property - get or set.
+ <dd> Make these different derived classes.
+    <br/>
+    Already have the classes defined. Just create instances of these.
+  PropertyGetDescription, PropertySetDescription, PropertySetRefDescription,
+   FunctionInvokeDescription..
+
+
+ <dt> Classes for the different ITypeInfo derivatives.
+ <dd> The type information gives this, but not by the class of the object.
+      e.g. for enum or coclass of lib[["Application"]] it should be
+           EnumTypeLibEntry or CoclassTypeLibEntry.
+    <br> Done as   ITypeInfoEnum, ITypeInfoDispatch, ...
+ <dt>
+ <li> Is a ITypeLibEntry the same as a ITypeInfo?
+ <dd> Yes, and now removed.
+
+  <dt> Invoke type for methods needs a name for the integer constant.
+  <dd> Done
+
+ <dt>
+ <li> put the type attribute's GUID into an S slot.
+ <dd> Done.
+<pre>
+names(typelib)
+i = typelib[["Workbook"]] 
+.Call("R_GetGuid", i)
+</pre>
+
+ <dt>
+ <li> names for the coclass elements.
+ <dd>
+      Got memid for each of the other types.
+      How can we find the name from an ITypeInfo?
+
+      Can use the GUID to do a post-hoc lookup in the context
+      of some other table.       
+</dl>
+
+
+
+
+
+
+
+<hr>
+<address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
+<a href=mailto:duncan@wald.ucdavis.edu>&lt;duncan@wald.ucdavis.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Wed Aug 31 08:58:14 Pacific Standard Time 2005
+<!-- hhmts end -->
+</body> </html>

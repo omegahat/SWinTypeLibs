@@ -1,0 +1,310 @@
+<article xmlns:s="http://cm.bell-labs.com/stat/S4"
+         xmlns:r="http://www.r-project.org"
+         xmlns:c="http://www.c.org"
+         xmlns:com="http://www.microsoft.com"
+>
+
+<articleInfo>
+<title>Code Generation via the SWinTypeLibs Package</title>
+<author>
+ <firstname>Duncan</firstname>
+ <lastname>Temple Lang</lastname>
+ <affiliation>Department of Statistics, UC Davis</affiliation>
+</author>
+</articleInfo>
+<section>
+<title>Introduction</title>
+
+</section>
+
+<section>
+<title>Properties and Methods</title>
+
+We are experimenting with different 
+semantics that are predictable and useful.
+We have properties whose current value
+we can access. We also have properties whose
+value we can set. And we have methods.
+Some methods require no arguments
+making them look very like properties
+that we can access. 
+Some methods have default values for parameters so that
+they require no arguments in a call, but they do allow them.
+It is convenient to be able to make the R expressions
+that access the properties and methods as simple
+as possible.
+
+<para/>
+Currently (and this may change when we actually use the code!)
+
+
+
+
+<section>
+<title>In-line/Composite Assignments</title>
+
+There is a difficulty in supporting 
+a "natural" syntax for composite
+assignments. Take Micrsoft Word as an
+example.  We
+can use a single expression
+to get the first document in the
+application and then fetch its 
+property named <com:property>Saved</com:property>:
+<s:code>
+ word$Documents[[1]]$Saved
+</s:code>
+It seems entirely natural to be able 
+set the value of this property using
+the same syntax:
+<s:code>
+ word$Documents[[1]]$Saved = TRUE
+</s:code>
+
+The S language allows us to 
+define methods for 
+the <s:op>$&lt;-</s:op> operator.
+The model for these composite/inline S language
+assignments is to break them into separate stages.
+So this amounts to
+<s:code>
+  docs = word$Documents
+  doc = docs[[1]]
+  doc$Saved = TRUE
+  docs[[1]] = doc
+  word$Documents = docs
+</s:code>
+So we see that we call <s:op>$&lt;-</s:op>
+for (doc, "Saved", TRUE) and (word, "Documents", docs).
+We also have an assignment to
+the first element of the <s:var>docs</s:var> list
+via the operator <s:op>[[&lt;-</s:op>.
+The call with the triple (doc, "Saved", TRUE)
+is relatively easy. From the compiled definition
+of <s:var>doc</s:var>, we can look up the
+SetProperty methods list for the
+class of <s:var>doc</s:var> and then call 
+the corresponding function.
+<para/>
+The call with the triple (word, "Documents", docs)
+is a little trickier. We definitely want to support this
+within the context of the composite/inline assignment.
+However, if we wanted to deal with a simple call such
+as 
+<s:code>word$Documents = docs</s:code>
+we would like to raise an error.
+The property <com:property>Document</com:property> is
+supported, but is "read-only". In other words, 
+one should not attempt to set its value. Yet,
+we have to support setting this value if we are 
+to suport the composite/inline setting.
+Essentially, we have to be able to recognize that this
+assignment is part of a large assignment expression.
+We can do this by looking at the current call
+being evaluated and its parent calls. Also, we can
+look at the first argument  of the call
+and compare it to "*tmp*" which is the 
+internal name used by R to represent the
+fact that the call is part of a large assignment.
+</section>
+
+</section>
+
+<section>
+<title>Events</title>
+
+We want to be able to register
+R functions to respond to events
+that a DCOM object may generate.
+We have the necessary low-level support
+for this in the <s:package>RDCOMEvents</s:package>
+package. (See <s:func>connectEventHandlers</s:func>.)
+This interface 
+uses the type library to get 
+a definition for the methods
+and the numeric keys identifying the methods
+to construct a template for an event handler
+object. 
+We can construct this information as we
+are processing the type library
+in the generation of interface code.
+This will avoid doing it at run-time,
+leading to marginally faster code,
+but more importantly, making the
+code more robust.
+It does not depend on having the type library
+available, and it allows us to test the 
+resulting generated code directly.
+
+<para/>
+Perhaps the simplest (unambiguous) interface for the user
+is to be able  to 
+call a function something like
+<s:code>
+connectEventHandlers(workbook, list(SheetChange = function(sh, target) {  },
+                                    NewSheet = function(sh) {  }))
+</s:code>
+This function would then examine 
+the available connection
+points of the <s:arg>workbook</s:arg> object.
+If there is only one available connection
+point, then the function
+can find the relevant template using
+that connection point's UUID.
+If there are several connection points,
+the user must specify
+which one.
+Essentially, this amounts to identifying
+the appropriate template.
+She can do this by
+giving the name of the interface,
+or its UUID.
+The <s:func>connectEventHandlers</s:func>
+would then resolve the identifier
+to get the pre-generated template
+and work from that.
+We can use a third argument to specify
+the UUID or the human-readable name of the
+interface.
+Alternatively, we can 
+allow the user to create
+the event handler object
+directly and pass that to the call
+to the <s:func>connectEventHandlers</s:func>
+function.
+Specifically, if we have an event
+interface in the type library, say WorkbookEvents,
+then 
+we would generate a constructor function,
+say <s:func>WorkbookEventsHandler</s:func>
+which would take the user's functions
+and merge them into the template and
+return an object that 
+can be used to implement the event interface
+as well as identify the connection point
+of interface.
+In this way, <s:func>connectEventHandlers</s:func>
+would be called as
+<s:code>
+ connectEventHandlers(workbook, 
+                       WorkbookEventsHandler(SheetActivate = function(sh) {....},
+                                             NewSheet = function(sh) {....}))
+</s:code>
+The WorkbookEventsHandler object
+would be an instance of a simple extension of the COMEventServerInfo class
+in the <s:package>RDCOMEvents</s:package>.
+(We have added the GUID/UUID of the interface being implemented
+to that class.)
+<s:code>
+setClass("WorkbookEventsHandler", contains = "COMEventServerInfo")
+</s:code>
+
+
+<para/>
+Let's consider the case that the user invokes
+<s:func>connectEventHandlers</s:func>
+with a third argument identifying
+the particular connection point/interface
+of interest.
+If the identifier is a human-readable
+interface name, e.g. WorkbookEvents,
+then the function can map this to
+the corresponding UUID.
+The code generation process will generate
+such a named character vector 
+mapping the human-readable name to
+the UUID/GUID.
+A second, parallel list
+maps the GUID to a constructor
+function such as <s:func>WorkbookEventsHandler</s:func>
+above.  This constructor function then creates the handler.
+Assuming we have this name to GUID to constructor function mapping, 
+we can concentrate on the constructor functions.
+
+<section>
+<title>The Event Handler Constructor Functions</title>
+Given a particular ITypeInfoDispatch (or
+ITypeInfoInterface) object, we
+want to process it and create an event
+server template.
+Given the existing tools for interactive use,
+we are almost there.
+Let's suppose we have an <s:class>ITypeInfo</s:class> object
+named <s:var>info</s:var>.
+We call 
+  <s:expression>createCOMEventServerInfo(info, complete = TRUE)</s:expression>
+and we get an object that contains all the information 
+to create an event handler instance.
+At this point, we can validate the user-supplied
+methods for the interface 
+and merge them into the template.
+(We can discard those methods that are not supplied
+as we no longer need them.)
+And we can then create an instance of the server.
+
+<para/>
+
+<s:code>
+WorkbookEventsHandler = 
+function(methods)
+{
+  template = ExcelEventHandlerTable[["WorkbookEvents"]]
+  ok = match(names(methods), template@methods)
+  if(any(is.na(ok))) {
+    stop("The interface ", "WorkbookEvents", " has no methods named ", 
+           paste(names(methods)[is.na(ok)], sep = ", "))
+  }
+
+  template@methods[names(methods)] = methods
+  server = createCOMServer(template, direct = TRUE)
+
+  server
+}
+<s:/code>
+
+There is but one thing missing from this function.
+It is not obvious how to get the 
+GUID of the interface that this server implements.
+All the information is available to us
+as we can get the entire implementation
+object back via a call to 
+<s:func pkg="RDCOMServer">getServerDetails</s:func>.
+However, it might be easiest to make the GUID
+available directly with this server.
+We will define a new class for that
+contains the event handler instance
+and the GUID.
+<s:func>connectEventHandler</s:func>
+will then have all the information
+it needs to query the server
+object for the connection point
+and register the event handler 
+with it.
+
+<para/>
+
+We should note that the the code for WorkbookEventsHandler is quite
+generic.  The only parts that refer specifically to the WorkbookEvents
+interface are the querying of the template in the table and the error
+message.  We can abstract this code therefore into a generic function
+that takes the template and the name of the interface and creates the
+server instance.  We put this
+<s:func>createEventHandlerFromTemplate</s:func> in the
+<s:package>RDCOMEvents</s:package> package.
+So <s:func>WorkbookEventsHandler</s:func>
+would look more like
+<s:code>
+WorkbookEventsHandler = 
+function(methods)
+{
+  template = ExcelEventHandlerTable[["WorkbookEvents"]]
+  createEventServerFromTemplate(methods, template, "WorkbookEvents")
+}
+</s:code>
+</section>
+
+
+
+
+</section>
+</article>

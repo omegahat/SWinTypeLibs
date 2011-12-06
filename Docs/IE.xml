@@ -1,0 +1,30 @@
+When we create an instance of Internet Explorer, we  get
+an IWebBrowser. (It is a multi interface, possibly a
+WebBrowser coclass which contains IWebBrowser and IWebBrowser2.)
+It is the IWebBrowser that has the Document method.
+This returns a generic IDispatch. However, by some snooping
+on the Web and perhaps by looking at the UUIDs of the actual object
+and comparing them to those in the Type Library, we can determine
+that this is an IHTMLDocument2 object from the MSHTML library.
+This is the one that has the links property
+which is an IHTMLElementCollection.
+
+That has an item and a length method, not an Item and a Count.
+So we have to recognize this in our getListClassName function.
+We should do this on the basis of the names of the methods
+or alternatively the name of the class since IHTMLElementCollection
+is an obvious collection. We also need to introduce another 
+COMList type which knows what the methods are for Item and Count.
+
+
+
+Once we have a link, it is an IHTMLElement.
+It has, for example, a method named innerHTML which gives
+the contents. 
+
+
+links = ie$Document()$links()
+n = links[["length"]]
+targets = sapply(1:n, function(i) links$item(i)[["href"]])
+
+ie$Document()

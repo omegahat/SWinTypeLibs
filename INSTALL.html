@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title></title>
+</head>
+
+<body>
+<h1>Installation</h1>
+
+The binary version can be simply unzipped
+into the <code>RHOME/library/</code> directory of the R installation.
+<pre>
+  cd <i>RHOME</i>/library
+  unzip @ZIP_FILE@.zip
+</pre>
+
+<p/>
+
+The source version can be installed by unzipping the source ZIP file
+into <code>RHOME/src/library</code> directory and then building the
+package using
+<pre>
+ Rcmd install SWinTypeLibs
+</pre>
+or
+<pre>
+ cd ../gnuwin32
+ make pkg-SWinTypeLibs
+</pre>
+
+
+
+
+<hr>
+<address><a href="http://www.stat.ucdavis.edu/~duncan">Duncan Temple Lang</a>
+<a href=mailto:duncan@wald.ucdavis.edu>&lt;duncan@wald.ucdavis.edu&gt;</a></address>
+<!-- hhmts start -->
+Last modified: Tue Jan  7 05:46:30 UTC 2003
+<!-- hhmts end -->
+</body> </html>

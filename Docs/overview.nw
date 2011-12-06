@@ -1,0 +1,91 @@
+@ This package allows R users to explore type information coming from
+either type libraries or COM objects.  The functions provide
+information about the properties of objects, methods and their
+argument and return types, the names and values of enumerated types,
+and fields in structures and unions.
+
+One can find type information by loading a type library or by
+obtaining a reference to a COM object.  Suppose we have the ADO
+(ActiveX Data Object) library on our system at it is located at
+\file{C:/Program Files/Common Files/system/ado/msado15.dll}.
+We load that library using \SFunction{LoadTypeLib}
+<<>>=
+lib = LoadTypeLib("C:/Program Files/Common Files/system/ado/msado15.dll")
+
+@ The resulting \SVariable{lib} is a reference or handle to the
+C-level structure that identifies the object.  We can use this to
+examine the different elements about which it provides type
+information.  When we are finished with it, we can release the library
+and free the resources it uses using \SFunction{UnloadTypeLib} (Not implemented yet).
+
+Given the library reference,  we can find out the names
+of the different elements it contains.
+<<>>=
+names(lib)
+
+@ We can also find out the types of these different elements
+using \SFunction{getTypeLibTypes}.
+<<>>=
+getTypeLibTypes(lib)
+
+@ This describes the type of each element in the library by its type
+name such as dispatch, coclass, enum.  These are indexed by the names
+of the type.  If one wants to get the actual numeric type rather than
+the text descriptions (so that they can be used within the C code),
+use the \SArg{byName} argument and specify \SFalse.
+
+
+@ We can ``zoom in'' and look at the type information for individual
+elements of the type library.  We get a reference to the underlying C
+\Cstruct{ITypeInfo} object using the overloaded \SOperator{[[}.  One
+can index the type library reference either by the name or position of
+the desired element.
+
+<<>>=
+cmd = lib[["Command"]]
+
+@
+or
+<<>>=
+cmd = lib[[91]]
+
+@ We can then get the details of the type of this element using this
+object.  For example, we can find the collection of values in the
+enumeration \texttt{BookMarkEnum}.
+
+<<>>=
+
+getEnum(cmd)
+
+@
+Suppose we wanted to find all the enumerations
+within a library and obtain their definitions
+as a name-value vector for each enum type.
+We can do this in two steps
+<<>>=
+types = getTypeLibTypes(lib)
+enums = (1:length(types))[types == "enum"]
+
+lapply(enums, function(x) getEnum(lib[[x]]))
+
+
+@
+<<>>=
+getVars(lib[["FieldEnum"]])
+
+
+@ If an element in the type library is a coclass
+type info object, then it can represent multiple 
+interfaces. We get a list of the \SClass{ITypeInfo}
+objects for each of these interfaces by calling
+\SFunction{getElements}.
+
+
+<<>=
+getFuncs(cmd) 
+
+
+
+@
+
+

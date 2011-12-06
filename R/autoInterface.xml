@@ -1,0 +1,507 @@
+<article
+   xmlns:s="http://cm.bell-labs.com/stat/S4"
+   xmlns:com="http://www.microsoft.com"
+   >
+
+   <!-- Source into S with the code in XML/Literate/Src/xmlSource
+     xmlTreeParse("autoInterface.xml", handlers= gather(idFilter("def", envir = NULL)))
+     -->
+
+One can read the type information for a class (using type libraries)
+or directly from an instance of that class.  We can use this type
+information in a variety of ways.  The most obvious use is to generate
+S functions that provide convenient and potentially efficient access
+to objects of that class.  For example, we can read information about
+a class and determine its read and writeable properties, methods and
+their parameter names and whether each is optional or not.  We can
+define S functions to mirror these, define S4 classes and methods to
+access different properties and methods and converters to copy an
+object by its property values.  Similarly, we could generate C
+routines that provide efficient access based on the type information
+rather the <com:class>IDispatch</com:class> interface.
+
+<para/>
+Since we can do all of this in S, the
+code is both high-level and also more readily customizable.
+
+<para/>
+Let's start by reading a type library.
+We'll use the Excel library as an example.
+<s:code omit="true" group="foo">
+lib = LoadTypeLib("C:\\Program Files\\Microsoft Office\\Office\\EXCEL9.OLB")
+</s:code>
+
+This contains a large collection of <s:class>ITypeInfo</s:class>
+objects. So we process each of them to collect the
+information for each type.
+We start by getting the list of <s:class>ITypeInfo</s:class> objects.
+<s:code omit="true" group="foo">
+els = getTypeInfo(lib)
+</s:code>
+
+We generate S representations of the enumerations in the type library.
+We do this by first getting all the enumerations
+<s:code omit="true" group="foo">
+enums = els[sapply(els, function(x) names(x@type) == "enum")]
+</s:code>
+This gives us the relevant <s:class>ITypeInfo</s:class> objects.
+Now we have to resolve each of these and
+represent them as an S object.
+One convenient representation is a named integer vector
+containing the values  of the elements in the 
+enumeration and the names giving the symbolic representation.
+Whenever we attempt to convert a value to an instance
+of this enumeration, we can then handle either numeric
+values or names by matching it to the elements of
+this enumeration definition.
+
+
+<s:code>
+setClass("EnumerationDefinition",
+           representation("integer"))
+
+setAs("integer", "EnumerationDefinition",
+        function(from) {
+          if(length(names(from)) == 0)
+           stop("Enumeration must have named elements")
+          x = new("EnumerationDefinition")
+          x@.Data = from
+          x
+        })
+
+setClass("EnumerationValue", representation("integer"))
+</s:code>
+
+<s:code>
+setClass("XlCellnew", representation("EnumerationDefinition")
+setClass("XlCellType", representation("EnumerationValue"))
+setAs("
+
+</s:code>
+
+
+<section>
+<title>Functions</title>
+
+Let's look at the Workbooks element in the type library.  We can ask
+for its collection of functions using either of the
+<s:func>getFuncs</s:func> or <s:func>getElements</s:func> functions.
+<s:code>
+workbooks = lib[["Workbooks"]]
+funcs = getFuncs(workbooks)
+</s:code>
+
+In my version, there are 19 functions.
+We can get their names using 
+<s:code>
+ names(funcs)
+</s:code>
+
+The first 7 come from the IUnknown and IDispatch interfaces of COM
+objects and are not of much interest to us in this context.  The
+remainder of the elements are the ones that users might want to
+invoke. Let's look at the Open function.  This is a regular function
+that we invoke with arguments and get a result back.  It is not a
+property accessor.  In S, this is represented as an object of class
+<s:class>FunctionInvokeDescription</s:class>.
+
+We can query its parameter list using the
+<s:slot>parameters</s:slot>.
+<s:code>
+f = funcs[["Open"]]
+names(f@parameters)
+</s:code>
+This illustrates that there are 13 parameters.
+We can ask which ones are optional and which are required.
+<s:code>
+ sapply(f@parameters, isOptional)
+</s:code>
+This shows that only one of them is required,
+namely the first one, Filename.
+
+<para/>
+
+If we were to call this from S (indirectly) using the
+<s:func>.COM</s:func> function in the
+<s:package>RDCOMClient</s:package>, we might want to make certain of a
+few things.  Firstly, we would want to ensure that the function
+existed in the target object.  We typically invoke the function
+using the syntax
+
+<s:code>
+  obj$Open(filename, ...)
+</s:code>
+
+If <s:var>obj</s:var> had a specific class that identified it as a
+<com:class>Workbook</com:class>, we could then provide a specific
+method for the <s:operator>$</s:operator>.  This would check the
+specified name was available in the object or throw an error.  This
+would avoid the expense of looking up the name by a call to the,
+potentially remote, object's <com:method>GetIDsOfNames</com:method>
+method.  Additionally, this method could determine if this was a
+property or a regular function and return an appropriate object, a
+function or the property value.
+
+<para/>
+
+The method could be implemented something like the following. We
+assume that the different lists describing the property-get,
+property-set and function definitions are in the scope of this
+function. This is done by creating the function in a suitable
+environment.
+
+<s:code>
+<![CDATA[
+"$.Workbook" =
+ function(x, name) {
+   i = name %in% names(propertyGet)
+   if(i) {
+       # Use the propertyGet[[i]] to control the conversion of the return type.
+      .COM(x, name, .dispatch = 2)
+  } else if(name %in% names(functions)) {
+     function(...) {
+      .COM(x, name, ..., .dispatch = 1)     
+     }
+  } else 
+    stop("No such property or function in the COM object of type", class(x)
+   
+ }
+]]>
+</s:code>
+
+We first check if the name of the element is a accessible property. If
+so, we make a call to retrieve the value and return.  Alternatively,
+we check whether the name identifies a regular function. If so, we
+return an actual function object which the user can then invoke
+with additional arguments.
+<s:code>
+  wkbs$Open("foo.xls")
+</s:code>
+
+<para/>
+
+We can make the case where we return a function more intelligent than
+the one above.  Firstly, we can check that its arguments match the
+parameters in the definition of the COM function.  We check the names
+in lower case since COM does not enforce case-sensitivity.  Secondly,
+we can apply converters to the S values to change them to the
+appropriate types for the particular parameters.
+
+<s:code>
+<![CDATA[
+function(x, name) {
+
+ .paramNames = tolower(names(desc@paramters))
+ .required = .paramNames[!sapply(desc@parameters, isOptional)]
+ .converters = lapply(desc@parameters, getConverterFunctions)
+ if(all(sapply(.converters, is.null))) 
+   .converters = NULL
+
+ function(...) {
+    args = sys.call()
+    argNames = tolower(names(args)[-1])
+    if(any(which = is.na(match(argNames, .paramNames))))
+         stop("Unmatched arguments", paste(argNames[which], collapse=", "))
+
+    if(any(is.na(match(.required, argNames))))
+       stop("Required argument(s) missing:", paste(.required[is.na(match(.required, argNames))], collapse=", "))
+    .COM(x, name, ..., .dispatch)
+ }
+}
+]]>
+</s:code>
+
+
+We can further enhance this mechanism, this time to make the
+<s:func>.COM</s:func> more efficient.  The S user will call access
+methods, properties and parameters by name. However, the
+<s:func>.COM</s:func> mechanism must first map these to integer
+identifiers so that it can make the call.  It does this by asking the
+COM object to map the names to the identifiers it understands, and
+this involves an extra communication with the COM object.  If this is
+a remote object on another machine, this can be expensive.
+
+<para/>
+
+To make the <s:func>.COM</s:func> call more efficient, we can compute
+these identifiers ahead of time from the type information and supply
+these in the <s:func>.COM</s:func> call.  We compute these from the
+function description and <s:class>ITypeInfo</s:class> object for the
+function.  The function <s:func>getNameIDs</s:func> does this for us.
+We give it the <s:class>FunctionDescription</s:class> object and
+<s:class>ITypeInfo</s:class> object.
+
+<s:code>
+ getNameIDs(func, wks)
+</s:code>
+
+There are several methods for this function.  We can ask for a list of
+the name identifiers for each function in a
+<s:class>ITypeLibEntry</s:class>.
+<s:code>
+ getNameIDs(wks)
+</s:code>
+
+This is the version we want for our purposes.  We want to get the
+identifiers for <emphasis>each</emphasis> of the functions associated
+with the specified <s:class>ITypeLibEntry</s:class>.  With this, we
+can modify our method for the <s:operator>$</s:operator> operator to
+use this information.  When we generate the method function,
+we compute this table of identifiers. When we call 
+<s:func>.COM</s:func>, we pass the entry for that name.
+<s:code>
+<![CDATA[
+function(x, name) {
+
+  i = name %in% names(propertyGet)
+  if(i) {
+      .COM(x, name, .dispatch = 2, .ids = nameIDs[[name]])
+  else if(name %in% names(functions)) {
+    function(...)
+     .COM(x, name, ..., .dispatch, .ids = nameIDs[[name]])
+  } else
+    stop(...)
+}
+]]>
+</s:code>
+For this to work, we must compute <s:var>nameIDs</s:var>
+from the function descriptions, eliminating any
+<s:class>PropertSetDescription</s:class>
+elements.
+<s:code>
+  funcs = getFuncs(libEntry)
+  which = sapply(funcs, function(x) !is(x, "PropertySetDescription"))
+  nameIDs = getNameIDs(libEntry)[which]
+</s:code>
+
+<invisible>
+<s:code group="def">
+
+getConverterFunction = 
+function(param)
+{
+ NULL
+}
+</s:code>
+
+<s:code group="def">
+<![CDATA[
+computeFunctionInformation =
+function(desc) {
+
+  if(length(desc@parameters) == 0)
+    return(list(paraNames = NULL, required = NULL, converters = NULL))
+
+  paramNames = tolower(names(desc@parameters))
+  required = paramNames[!sapply(desc@parameters, isOptional)]
+  converters = lapply(desc@parameters, getConverterFunction)
+  if(all(sapply(converters, is.null))) 
+   converters = NULL
+
+  list(paramNames = paramNames,
+       required = required, 
+       converters = converters)
+}
+
+generateOperators =
+function(libEntry, className) {
+
+  funcs = getFuncs(libEntry)
+
+  which = sapply(funcs, function(x) !is(x, "PropertySetDescription"))
+  .nameIDs = getNameIDs(libEntry)[which]
+
+  getDefs = lapply(funcs[which], computeFunctionInformation)
+
+  Get = 
+   function(x, name) {
+   i = name %in% names(funcs)
+   if(!i)
+    stop("No such property or function ", name, " in the COM object of type", class(x))
+
+  
+   if(is(funcs[[name]], "PropertyGetDescription")) {
+     .COM(x, name, .dispatch = 2, .ids = .nameIDs[[name]])
+   } else {
+    function(...) {
+     args = sys.call()
+     argNames = tolower(names(args)[-1])
+
+     def = funcs[[name]]
+     if(any(which <- is.na(match(argNames, def$paramNames))))
+         stop("Unmatched arguments", paste(argNames[which], collapse=", "))
+
+     if(any(is.na(match(def$required, argNames))))
+       stop("Required argument(s) missing:", paste(def$required[is.na(match(def$required, argNames))], collapse=", "))
+
+     .COM(x, name, ..., .dispatch = 1, .ids = .nameIDs[[name]])
+    }
+   }
+  }
+  setMethod("$", className,  Get)
+
+  if(length(which) > 0 && all(which))
+    .SetProperties <- funcs[!which]
+  else
+    .SetProperties <- list()
+
+  Set <- function(x, name, value) {
+     i = tolower(name) %in% names(.SetProperties)
+     if(!i)
+        stop("No mechainsm for setting the property ", name)
+
+     .COM(x, name, value, .dispatch = 4)
+  }
+
+  setMethod("$<-", className, Set)
+
+  invisible(list(Get, Set))
+}
+]]>
+</s:code>
+</invisible>
+
+<s:code>
+lib = LoadTypeLib("C:\\Program Files\\Microsoft Office\\Office\\EXCEL9.OLB")
+z = generateOperators(lib[["Workbooks"]], "Workbooks")
+
+library(RDCOMClient)
+setClass("Workbooks", representation("COMIDispatch"))
+
+setAs("COMIDispatch", "Workbooks", function(from) {
+  tmp = new("Workbooks")
+  tmp@ref = from@ref
+  tmp
+})
+</s:code>
+
+<s:code>
+e = COMCreate("Excel.Application")
+e = as(tmp, "Excel.Application")
+books = as(e[["Workbooks"]], "Workbooks")
+</s:code>
+
+Rather than having to explicitly coerce the generic
+<s:class>COMIDispatch</s:class> object to the particular class
+(e.g. <s:class>Workbooks</s:class>), we would like the S-level COM
+mechanism to do this for us.  To do this, we want the function that
+creates an S <s:class>COMIDispatch</s:class> object to use the
+appropriate derived class.  To do this, it must be able to uniquely
+identify the COM class and map this to a previously defined S class.
+To do this, when we define a class such as the
+<s:class>Workbook</s:class> above, we store that along with the GUID
+of the <s:class>ITypeInfo</s:class>.  As part of the process for
+creating the different methods for a <s:class>ITypeLibEntry</s:class>,
+we also define the class, the <s:func>as</s:func> method and then
+store the name of the class in a central place along with its GUID.
+
+<s:code group="def">
+<![CDATA[
+
+createCOMSClass =
+function(libEntry, className, where = NULL)
+{
+  setClass(className, "COMIDispatch")
+  setAs("COMIDispatch", className, function(from) {
+    tmp = new("Workbooks")
+    tmp@ref = from@ref
+    tmp
+  })
+
+  generateOperators(libEntry, className)
+
+  if(!exists(".COMSClassMap"))
+    stop("Create .COMSClassMap")
+
+  .COMSClassMap[[libEntry@guid]] <<- className
+
+  className
+}
+]]>
+</s:code>
+
+Now, we can use this function for, say, the
+Workbooks entry in the type library.
+
+<s:code>
+lib = LoadTypeLib("C:\\Program Files\\Microsoft Office\\Office\\EXCEL9.OLB")
+.COMSClassMap = character(0)
+
+createCOMSClass(lib[["Workbooks"]], "Workbooks")
+
+</s:code>
+
+
+</section>
+
+<invisible>
+Ignore the remainder
+
+<s:code>
+processFunctions =
+function(obj)
+{
+
+ funcs = getFuncs(obj)
+ readProps = names(funcs)[sapply(funcs, function(x) x@invokeType == 2)]
+ writeProps = names(funcs)[sapply(funcs, function(x) x@invokeType == 4)]
+
+ readWriteProps = readProps[!is.na(match(readProps, writeProps))]
+
+ readOnlyProps = readProps[is.na(match(readProps, writeProps))] 
+ writeOnlyProps = writeProps[is.na(match(writeProps, readProps))] 
+
+
+callable  = names(funcs)[sapply(funcs, function(x) x@invokeType == 1)]
+
+list(readOnly = readOnlyProps, writeOnly = writeOnlyProps,
+     readWrite = readWriteProps,  functions = callable)
+}
+</s:code>
+
+This gives us information about the elements in the class.  This
+allows us to control access to the elements.  We can create functions
+<s:func>$.&lt;type&gt;</s:func> and
+<s:func>$&lt;-.&lt;type&gt;</s:func> which has this information at its
+disposal.  It can then differentiate between properties and functions
+and simplify access to the elements of the object.
+
+<s:code>
+<![CDATA[
+comAccessor =
+function(info, className, where = NULL) {
+
+  get <- function(x, name) {
+    name <- tolower(name)
+
+    if(!is.na(match(name, info$functions))) {
+       return(function(...) {
+                .COM(x, name, ...)
+              })
+    } else if(!is.na(match(name, c(info$readOnly, info$readWrite)))) {
+       .Call("R_getProperty",x, as.character(name), NULL)
+    } else {
+       browser()
+       stop("No such element ", name, " in COM object")
+    }
+  }
+
+  set <- function(x, name, value) {
+    name <- tolower(name)
+
+    if(!is.na(match(name, c(info$readWrite, info$writeOnly)))) {
+       .Call("R_setProperty", x, as.character(name), list(value))
+       x
+    } else
+      stop("No writeable property named ", name, " in COM object")
+  }
+
+  setMethod("$", className, get, where = where)
+  setMethod("$<-", className, set, where = where)
+}
+]]>
+</s:code>
+</invisible>
+
+
+</article>

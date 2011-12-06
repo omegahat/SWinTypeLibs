@@ -1,0 +1,7 @@
+DESCRIPTION: DESCRIPTION.in configureInstall VersionInfo
+	./configureInstall
+
+configureInstall: Install/configureInstall.in
+	autoconf Install/configureInstall.in > configureInstall
+	chmod +x configureInstall
+
