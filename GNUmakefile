@@ -59,7 +59,7 @@ zip:
 	(cd $(RHOME)/library ; zip -r $(ZIP_FILE) $(PKG_NAME); mv $(ZIP_FILE) $(PWD))
 
 tar source: package
-	(cd $(INSTALL_DIR)/.. ; Rcmd build $(PKG_NAME); mv $(TAR_SRC_FILE) $(PWD))
+	(cd $(INSTALL_DIR)/.. ; R CMD build $(PKG_NAME); mv $(TAR_SRC_FILE) $(PWD))
 
 install: package
 	(cd $(RHOME)/src/gnuwin32 ; make pkg-$(PKG_NAME))
