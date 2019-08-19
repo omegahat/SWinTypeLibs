@@ -102,7 +102,7 @@ setClass("FunctionDescription",
                          parameters = "list",
 			 invokeType = "integer",
 	                 kind = "integer"),
-          prototype = list(name="", returnType = NULL, parameters = NULL, optionalParameters = NULL, invokeType = integer(1), kind = integer(0)))
+          prototype = list(name="", returnType = NULL, parameters = NULL, parameters = NULL, invokeType = integer(1), kind = integer(0)))
 
 
 setClass("PropertyGetDescription", representation("FunctionDescription"))
