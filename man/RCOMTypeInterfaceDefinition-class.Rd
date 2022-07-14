@@ -36,7 +36,7 @@ Instead, they are created in calls to
     \item{\code{className}:}{Object of class \code{\link{ClassDefinition-class}},
        code defining an S4 class representing the interface.}
     \item{\code{methods}:}{Object of class \code{"list"},
-      a list of \code{\class{COMMethodDefinition-class}} elements
+      a list of \code{COMMethodDefinition-class} elements
       corresponding to the methods (not property accessors)
       in the DCOM interface.}
     \item{\code{guid}:}{Object of class \code{"character"},

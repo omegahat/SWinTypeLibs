@@ -28,10 +28,10 @@
 
 
   \code{getEnum} is the actual function
-  that processes \code{\class{ITypeInfoEnum-class}} elements within a
+  that processes \code{ITypeInfoEnum-class} elements within a
   type library to get the "elements".
   \code{\link{getFuncs}} is used for 
-  \code{\class{ITypeInfoDispatch-class}} library elements.
+  \code{ITypeInfoDispatch-class} library elements.
 }
 \usage{
 getElements(x, recursive = FALSE)

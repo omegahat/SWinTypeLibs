@@ -16,7 +16,7 @@ getTypeDocumentation(lib, which)
    which to find the documentation element. }
   \item{which}{the index of the entry (1-based) in the type library
   whose documentation is to be retrieved.
-    If \code{lib} is an instance of \code{\class{ITypeInfo-class}},
+    If \code{lib} is an instance of \code{ITypeInfo-class},
     a value of 0 gives the human-readable name of the 
     type.  Values 1, 2, ... give the names of the
      methods/property accessors.
