@@ -16,6 +16,8 @@
 extern "C" {
 #include <Rdefines.h>
 #include <R_ext/Rdynload.h>
+
+#include "RError.h"
 }
 
 extern "C" {
@@ -979,6 +981,11 @@ R_getRefTypeInfo(SEXP s_info, SEXP href)
 
   hr = info->GetRefTypeInfo(refType, &hinfo);
 
+  if(hr != S_OK) {
+      PROBLEM  "GetRefTypeInfo() error : %ld", hr
+      ERROR;
+  }
+  
   SEXP ans;
   PROTECT(ans = R_createRTypeRefObject(hinfo, "ITypeInfo", NULL));
   setTypeInfoTypeSlot(ans, hinfo); /* TKIND_DISPATCH; */
@@ -1640,7 +1647,10 @@ R_GetIDsOfNames(SEXP s_info, SEXP s_names, SEXP isObject)
  /* Taken from ErrorUtils.cpp in PyWin32 distribution. */
 #include "oaidl.h"
 
+#ifndef _countof
 #define _countof(array) (sizeof(array)/sizeof(array[0]))
+#endif
+
 void GetScodeString(HRESULT hr, LPTSTR buf, int bufSize)
 {
 	struct HRESULT_ENTRY
