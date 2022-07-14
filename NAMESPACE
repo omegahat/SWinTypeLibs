@@ -79,3 +79,7 @@ importFrom(RDCOMClient, createTypeVarName)
 exportMethods(createTypeVarName)
 
 exportMethods(dput)
+
+
+export("getTypeName", dcomType)
+exportMethods("getTypeName")

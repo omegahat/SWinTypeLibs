@@ -133,7 +133,9 @@ setMethod("getTypeInfo", "COMIDispatch",
 	       if(length(which) == 0)	   
 	         which = 1:(.Call("R_getDCOMInfoCount", obj@ref, PACKAGE="SWinTypeLibs"))
 
-  	      .Call("R_getDCOMInfoEntry", obj@ref, as.integer(which-1), PACKAGE="SWinTypeLibs")
+  	      ans = .Call("R_getDCOMInfoEntry", obj@ref, as.integer(which-1), PACKAGE="SWinTypeLibs")
+	      class(ans) = c("ListOfITypeInfo", "list")
+	      ans
              })
 
 
@@ -446,3 +448,27 @@ function(info)
 {
   .Call("R_getActiveObject", info)
 }
+
+
+setGeneric("getTypeName",
+   function(x, ...)
+      standardGeneric("getTypeName"))
+
+setMethod("getTypeName", "COMIDispatch",
+    function(x, ...)
+       getTypeName(getTypeInfo(x), ...))
+
+
+setOldClass(c("ListOfITypeInfo", "list"))
+
+setMethod("getTypeName", "ListOfITypeInfo",
+    function(x, ...)
+       unname(sapply(x, getTypeName, ...)))
+
+setMethod("getTypeName", "ITypeInfo",
+    function(x, ...) {
+       getTypeDocumentation(x, 0L)["name"]  # 0 will be mapped to -1L which is MEMBERID_NIL
+    })
+
+dcomType = getTypeName
+
