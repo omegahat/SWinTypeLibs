@@ -134,6 +134,7 @@ setMethod("getVars", "ITypeInfo",
 
 	
 setGeneric("getFuncs", function(x, lib = NULL) standardGeneric("getFuncs"))
+
 setMethod("getFuncs", "ITypeInfo",
            function(x, lib = NULL) {
               els <- .Call("R_getCFuncs", x)
