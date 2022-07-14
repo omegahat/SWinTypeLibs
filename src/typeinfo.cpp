@@ -502,13 +502,20 @@ setTypeInfoTypeSlot(SEXP obj, ITypeInfo *type)
    SET_SLOT(obj, Rf_install("type"), ans);
   UNPROTECT(2);
 
+  
    BSTR ostr;
    HRESULT hr = StringFromCLSID(typeAttr->guid, &ostr);
+
+
+   
    if(hr == S_OK) {
      PROTECT(names = NEW_CHARACTER(1));
      SET_STRING_ELT(names, 0, COPY_TO_USER_STRING(FromBstr(ostr)));
      SET_SLOT(obj, Rf_install("guid"), names);
-     SysFreeString(ostr);
+
+     // original SysFreeString(ostr);
+     // google windows StringFromCLSID and see how to free -> CoTaskMemFree()
+     CoTaskMemFree(ostr);
      UNPROTECT(1);
    }
 
@@ -697,7 +704,6 @@ R_getDCOMInfoEntry(SEXP obj, SEXP which)
   PROTECT(ans = NEW_LIST(n));
   for(i = 0; i < n; i++) {
     hr = ref->GetTypeInfo(useOwnIndex ? i : INTEGER(which)[i], 0, &type);
-
     if(!FAILED(hr) && type) {
       PROTECT(tmp = R_createRTypeRefObject(type, "ITypeInfo", NULL));
       setTypeInfoTypeSlot(tmp, type);
@@ -707,6 +713,7 @@ R_getDCOMInfoEntry(SEXP obj, SEXP which)
       COMError(hr);
     }
   }
+  
   UNPROTECT(1);
   return(ans);
 }
