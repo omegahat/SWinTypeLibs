@@ -57,8 +57,11 @@ function(classDefs, ...)
 }
 
 
+## IS THIS EVER CALLED. 
 foo =
-function(externalClasses, obj)
+function(externalClasses, obj, verbose = FALSE,
+	 defaultClass = "CompiledCOMIDispatch",
+         defaultListClass = c("COMList", "COMTypedList"))
 {
      # Or sort by library, and generate
 
@@ -82,4 +85,5 @@ function(externalClasses, obj)
         obj@enums[classNames[isEnum]] = lapply(obj@externalClasses[isEnum],
                                                  function(def) 
                                                      getElements(def@info))
+     obj
 }
