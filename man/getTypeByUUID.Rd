@@ -30,7 +30,5 @@ getTypeByUUID(uuid, lib)
  \code{\link{names,ITypeLib-method}}
  \code{\link{[[,ITypeLib,character-method}}
 }
-\examples{
-
-}
+%\examples{}
 \keyword{programming}

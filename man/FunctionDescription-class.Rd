@@ -57,7 +57,5 @@ No methods defined with class "FunctionDescription" in the signature.
  \code{\link{getFuncs}}
 }
 
-\examples{
- 
-}
+%\examples{}
 \keyword{classes}

@@ -39,9 +39,7 @@ define(x, where, ...)
  \code{\link{writeCode}}
  \code{\link{generateInterface}}
 }
-\examples{
-
-}
+%\examples{}
 \keyword{programming}
 \keyword{interface}
 \concept{meta-programming}

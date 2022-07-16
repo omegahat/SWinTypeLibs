@@ -93,6 +93,5 @@ Instead, they are created in calls to
  Non-exported methods in \code{generate.S}:
  \code{generateClass}, \code{generateMethod}
 }
-\examples{
-}
+%\examples{}
 \keyword{classes}

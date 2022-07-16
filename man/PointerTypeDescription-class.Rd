@@ -39,7 +39,5 @@ No methods defined with class "PointerTypeDescription" in the signature.
  \code{\link{TypeDescription-class}}
 }
 
-\examples{
-
-}
+%\examples{}
 \keyword{classes}

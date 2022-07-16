@@ -60,15 +60,13 @@ Class \code{"vector"}, by class "character", with explicit coerce.
 }
 \references{
  \url{http://msdn.microsoft.com/library}
- \url{http://www.omegahat.org/SWinTypeLibs}
+ \url{http://www.omegahat.net/SWinTypeLibs}
 }
 \author{Duncan Temple Lang <duncan@wald.ucdavis.edu>}
 \seealso{
  \code{\link{generateInterface}}
 }
-\examples{
-
-}
+%\examples{}
 \keyword{classes}
 \keyword{programming}
 \concept{meta-programming}

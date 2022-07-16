@@ -35,7 +35,5 @@ No methods defined with class "TypeDescription" in the signature.
  \code{\link{PointerTypeDescription-class}}
 }
 
-\examples{
-##---- Should be DIRECTLY executable !! ----
-}
+%\examples{}
 \keyword{classes}

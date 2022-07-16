@@ -43,8 +43,6 @@ getRefTypeName(info, ref, lib, follow = !is.null(lib))
  \code{\link{getRefTypeInfo}}
  \code{\link{getTypeLibUUIDs}}
 }
-\examples{
-
-}
+%\examples{}
 \keyword{interface}
 

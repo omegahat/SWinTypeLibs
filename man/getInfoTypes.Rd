@@ -34,8 +34,6 @@ getTypeLibTypes(lib, which = 1:length(lib), byName = TRUE)
  \code{\link{getTypeDocumentation}}
 }
 
-\examples{
-
-}
+%\examples{}
 \keyword{programming}
 %\keyword{reflectance}

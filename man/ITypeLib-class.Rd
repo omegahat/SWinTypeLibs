@@ -4,6 +4,7 @@
 \alias{IContainingTypeLib-class}
 \alias{names,ITypeLib-method}
 \alias{length,ITypeLib-method}
+\alias{$,ITypeLib-method}
 \alias{[[,ITypeLib-method}
 \alias{[[,ITypeLib,numeric-method}
 \alias{[[,ITypeLib,character-method}
@@ -60,6 +61,5 @@
  \code{\link{ITypeInfo-class}}
 }
 
-\examples{
-}
+%\examples{}
 \keyword{classes}

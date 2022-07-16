@@ -29,9 +29,8 @@ as get and set methods for \code{$} and \code{$<-} respectively.
  \code{\link{createCOMSClass}}
  \code{\link{computeFunctionInformation}}
 }
-\examples{
+%\examples{}
 
-}
 \keyword{programming}
 \keyword{interface}
 

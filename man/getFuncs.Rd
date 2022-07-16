@@ -45,8 +45,6 @@ getFuncs(x, lib = NULL)
  \code{\link[RDCOMClient]{.COM}}
 }
 
-\examples{
-
-}
+%\examples{}
 \keyword{programming}
 %\keyword{reflectance}

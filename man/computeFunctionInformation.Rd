@@ -34,9 +34,8 @@ A list
 \seealso{
  \code{\link{createCOMSClass}}
  \code{\link{generateOperators}}
- \code{\link[RDCOMClient]{}}
+ the \code{RDCOMClient} package
 }
-\examples{
+%\examples{}
 
-}
 \keyword{programming}

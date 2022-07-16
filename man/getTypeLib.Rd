@@ -40,9 +40,7 @@ getTypeLib(x)
  \code{\link{LoadTypeLib}}
  \code{\link{LoadRegTypeLib}}
 }
-\examples{
-
-}
+%\examples{}
 \keyword{interface}
 \keyword{programming}
 

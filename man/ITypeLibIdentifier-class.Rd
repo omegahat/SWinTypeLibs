@@ -65,6 +65,5 @@ No methods defined with class "ITypeLibIdentifier" in the signature.
  \code{\link{LoadTypeLib}}
  \code{\link{LoadRegTypeLib}}
 }
-\examples{
-}
+%\examples{}
 \keyword{classes}

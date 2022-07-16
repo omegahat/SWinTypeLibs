@@ -74,6 +74,5 @@ Class \code{"ITypeLib"}, directly.
  \code{\link{ITypeLib-class}}
  \code{\link{generateInterface}}
 }
-\examples{
-}
+%\examples{}
 \keyword{classes}

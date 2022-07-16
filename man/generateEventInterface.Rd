@@ -53,9 +53,7 @@ An object of class \code{\link{RCOMEventInterfaceDefinition-class}}.
  \code{\link{generateInterface}}
  \code{\link{generateClass}}
 }
-\examples{
-
-}
+%\examples{}
 \keyword{programming}
 \keyword{interface}
 \concept{meta-programming}

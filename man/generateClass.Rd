@@ -65,9 +65,7 @@ generateClass(id, lib, defaultClass = "CompiledCOMIDispatch",
  \code{\link{generateEventInterface}}
 }
 
-\examples{
-
-}
+%\examples{}
 \keyword{programming}
 \keyword{interface}
 \concept{meta-programming}

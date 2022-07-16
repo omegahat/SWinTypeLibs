@@ -29,7 +29,7 @@ queryTypeLibPath(guid, version, lcid = 0)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{guid}{the object identifying the type library.
-   This can be a \code{\link[RDCOMClient]{COMIDispatch}},
+   This can be a \code{\link[RDCOMClient]{COMIDispatch-class}},
    or \code{link{ITypeInfo}}, or a UUID or character string giving the 
    UUID.}
   \item{version}{if specified, an integer vector of length 2 giving the 

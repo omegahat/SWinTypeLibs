@@ -5,11 +5,17 @@
 \alias{getTypeInfo,ITypeLib,character-method}
 \alias{getTypeInfo,ITypeInfo,TypeDescriptionRef-method}
 \alias{getTypeInfo,COMIDispatch-method}
+\alias{getTypeInfo,COMIDispatch,ANY-method}
+
+\alias{getTypeName,COMIDispatch-method}
+\alias{getTypeName,ITypeInfo-method}
+\alias{getTypeName,ListOfITypeInfo-method}
+
 \title{Reference to ITypeInfo Object}
 \description{
  This is used to get the C-level representation
 of an \code{ITypeInfo} object. Currently, one gets this from the \code{ITypeLib}
-or from a \code{\link[RDCOMClient]{COMIDispatch}} object.
+or from a \code{\link[RDCOMClient]{COMIDispatch-class}} object.
 From this object, one can query the meta-information it contains
 such as method definitions, etc.
 }
@@ -22,9 +28,7 @@ getTypeInfo(obj, which)
    whose \code{ITypeInfo} object is desired.
    If this is omitted, all the elements in the type library are returned.}
 }
-\details{
 
-}
 \value{
  An object of class \code{ITypeInfo}
  which contains a slot giving the address of 

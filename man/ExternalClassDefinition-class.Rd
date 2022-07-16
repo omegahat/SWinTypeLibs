@@ -71,7 +71,5 @@ No public methods defined with class "ExternalClassDefinition" in the signature.
  \code{\link{generateInterface}}
 }
 
-\examples{
-
-}
+%\examples{}
 \keyword{classes}

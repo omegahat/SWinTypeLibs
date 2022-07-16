@@ -88,6 +88,5 @@
  mechanism.
  
 }
-\examples{
-}
+%\examples{}
 \keyword{classes}

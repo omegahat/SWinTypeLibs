@@ -12,6 +12,8 @@
 \alias{[[,ITypeInfoCoClass,numeric-method}
 \alias{[[,ITypeInfoCoClass,ANY-method}
 \alias{[,ITypeInfoCoClass-method}
+\alias{[,ITypeInfoCoClass,ANY-method}
+
 \title{Information about an interface, class, enumeration, alias, etc.}
 \description{
  These classes provide a handle to C-level data structures
@@ -72,7 +74,5 @@ where \code{lib} is a \code{\link{ITypeLib-class}} object.
 \code{\link{LoadTypeLib}}
 }
 
-\examples{
-
-}
+%\examples{}
 \keyword{classes}

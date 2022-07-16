@@ -37,6 +37,5 @@ No methods defined with class "ElementDescription" in the signature.
  \code{\link{PointerTypeDescription-class}}
 }
 
-\examples{
-}
+%\examples{}
 \keyword{classes}

@@ -60,11 +60,8 @@ getRefTypeInfo(info, href, lib = NULL, follow = !is.null(lib))
   \code{ITypeInfo, TypeDescriptionRef}.
  \code{\link{getRefTypeName}}
 }
-\examples{
-\dontrun{
+%\examples{}
 
-}
-}
 \keyword{programming}
 \keyword{interface}
 \concept{meta-programming}

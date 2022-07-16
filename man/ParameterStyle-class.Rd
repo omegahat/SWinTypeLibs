@@ -35,7 +35,5 @@ No methods defined with class "ParameterStyle" in the signature.
  \code{\link{ParameterDescription-class}}
 }
 
-\examples{
-
-}
+%\examples{}
 \keyword{classes}

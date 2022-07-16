@@ -41,7 +41,5 @@ No methods defined with class "VariableDescription" in the signature.
  \code{\link{PointerTypeDescription-class}}
 }
 
-\examples{
-
-}
+%\examples{}
 \keyword{classes}

@@ -49,25 +49,19 @@ writeNamespace(ns, nsFile = "NAMESPACE", copy = character())
     NAMESPACE file.
   }
 }
-\details{
-}
 \value{
-
 }
 \references{
  \url{http://www.omegahat.org/SWinTypeLibs}
 }
 \author{Duncan Temple Lang <duncan@wald.ucdavis.edu>}
-\note{}
 
 
 \seealso{
  \code{\link{define}}
  \code{\link{computeFunctionInformation}}
 }
-\examples{
-
-}
+%\examples{}
 \keyword{interface}
 \keyword{programming}
 \concept{reflection}

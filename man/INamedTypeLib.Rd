@@ -34,8 +34,7 @@ INamedTypeLib(lib)
  as we make intensive use of the library's contents
  and so caching improves performance.
 }
-\examples{
-}
+%\examples{}
 \keyword{interface}
 \keyword{programming}
 

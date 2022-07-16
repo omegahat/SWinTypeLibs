@@ -38,12 +38,8 @@ Class \code{"TypeDescription"}, directly.
 \author{Duncan Temple Lang <duncan@wald.ucdavis.edu>}
 
 
-\seealso{
-
-}
+%\seealso{}
 
 
-\examples{
-
-}
+%\examples{}
 \keyword{classes}
