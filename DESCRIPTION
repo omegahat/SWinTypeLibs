@@ -1,17 +1,18 @@
 Package: SWinTypeLibs
-Version: 0.6-0
-Date:  2012/01/03
+Version: 0.7-0
 Title: Type Library Information Reader
-Author:  Duncan Temple Lang <duncan@wald.ucdavis.edu>
-Maintainer: Duncan Temple Lang <duncan@wald.ucdavis.edu>
-Depends: RDCOMClient, methods
+Author:  Duncan Temple Lang <duncan@r-project.org>
+Maintainer: Duncan Temple Lang <duncan@r-project.org>
+Imports: RDCOMClient, methods
+Suggests: RDCOMEvents
 Description: This provides ways to extract type information from 
     type libraries and/or DCOM objects that describes the
     methods, properties, etc. of an interface.
     This can be used to discover available facilities in a
     COM object or automatically generate S and C code to interface
     to such objects.
-License: GPL
+License: GPL-2
 LazyLoad: yes
-URL:  http://www.omegahat.org/SWinTypeLibs,  http://www.omegahat.org
-      http://www.omegahat.org/bugs
+URL:  https://github.com/omegahat/SWinTypeLibs
+  http://www.omegahat.org/SWinTypeLibs,  http://www.omegahat.org
+      

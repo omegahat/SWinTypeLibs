@@ -1,11 +1,12 @@
 useDynLib(SWinTypeLibs)
 
+import(methods)
 importClassesFrom(RDCOMClient, COMIDispatch, COMList, 
                                CompiledCOMIDispatch, CompiledCOMCoClass)
 
 
 # Vital that we import these!
-importFrom(RDCOMClient, sapply, lapply)
+importFrom(RDCOMClient, sapply, lapply, .COM)
 
 exportClasses("ITypeLib", "IContainingTypeLib", "ITypeLibIdentifier", "INamedTypeLib",
               "ITypeInfo", "TypeDescription", 
