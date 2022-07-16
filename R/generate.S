@@ -573,8 +573,8 @@ function(eventDefs, prefix = "")
   return(list(UUIDMap = uuidMap, EventTable = EventTable))
   
   env = new.env()
-  assign(paste(prefix, "UUIDMap", sep = ""), uuidMap, env = env)
-  assign(paste(prefix, "EventHandlerTable", sep = ""), EventTable, env = env)
+  assign(paste(prefix, "UUIDMap", sep = ""), uuidMap, envir = env)
+  assign(paste(prefix, "EventHandlerTable", sep = ""), EventTable, envir = env)
 
   env
 }
@@ -1280,8 +1280,6 @@ generateEventInterface =
 function(info, id, lib, defaultClassName = "CompiledCOMServer",
           verbose = FALSE)
 {
-  library(RDCOMEvents)
-
   if(verbose)
       cat("<generateEventInterface>", id, "\n")
 
@@ -1292,7 +1290,7 @@ function(info, id, lib, defaultClassName = "CompiledCOMServer",
     funcs = funcs[ - which(!is.na(w)) ]
 
   
- defs = createFunctionTemplates(funcs, createCompiledFunction, lib) # lib is part of ...
+  defs = RDCOMEvents::createFunctionTemplates(funcs, RDCOMEvents::createCompiledFunction, lib) # lib is part of ...
 
   funcName = paste(id, "Handler", sep = "")
   constructor = paste(funcName,
@@ -1310,7 +1308,7 @@ function(info, id, lib, defaultClassName = "CompiledCOMServer",
 #      className = c(className, defaultClassName)[1:2]
 #  }
 
-  template = createCOMEventServerInfo(info, .lib = lib, complete = TRUE)
+  template = RDCOMEvents::createCOMEventServerInfo(info, .lib = lib, complete = TRUE)
 
   new("RCOMEventInterfaceDefinition", className = className, 
                                       methods = defs, 
