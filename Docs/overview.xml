@@ -73,16 +73,14 @@ using <r:func>getTypeLibTypes</r:func>.
 <s:code>
 getTypeLibTypes(lib)
 </s:code>
-</para>
-
-<para>
-This describes the type of each element in the library by its type
+The result describes the type of each element in the library by its type
 name such as dispatch, coclass, enum, interface, alias, module, union,
 record/structure.  These are indexed by the names of the type.  If one
 wants to get the actual numeric type rather than the text descriptions
 (so that they can be used within the C code), use the
 <s:arg>byName</s:arg> argument and specify <s:false/>.
 </para>
+
 <para>
 This information is convenient for being able to get a
 big picture view of what the type library contains.
@@ -132,7 +130,7 @@ getVars(lib[["FieldEnum"]])
 If an element in the type library is a coclass type info object, then
 it can represent multiple interfaces. We get a list of the
 <s:class>ITypeInfo</s:class> objects for each of these interfaces by
-calling <s:func>getElements</s:func>.  We can the operate on each of
+calling <s:func>getElements</s:func>.  We can then operate on each of <!-- XXX with what argument.-->
 these <s:class>ITypeInfo</s:class> elements as we do above.  The
 <s:func>getElements</s:func> function has a <s:arg>recursive</s:arg>
 argument.
@@ -140,6 +138,7 @@ argument.
 
 <section>
 <title>Functions/Methods</title>
+<para>
 An IDispatch type (or type "dispatch")
 is a class that contains methods that one can invoke
 dynamically.
@@ -150,6 +149,8 @@ We load the Excel type library, e.g.
  lib = LoadTypeLib("c:/Micrsoft Office/OFFICE11/Excel.exe") 
 </s:code>
 or referencing the appropriate file.
+</para>
+<para>
 
 To get the Workbooks class, we use the command
 <s:code>
@@ -165,8 +166,9 @@ particular IDispatch class:
 <s:code>
  funs = getFuncs(workbooks) 
 </s:code>
+</para>
 
-
+<para>
 This is a regular list in R.
 The names of the elements are the names of the
 functions/operations.
@@ -179,8 +181,8 @@ and dynamically invoking methods and accessing properties.
 The remaining elements are more interesting from the
 user's perspective. These tell us what we can do with this
 class of object.
-
-<para/>
+</para>
+<para>
 Some of the names have a  curious _ and __ in front of
 them. For instance, we have an OpenText,
 _OpenText and __OpenText entries!
@@ -206,11 +208,11 @@ sapply(funcs[grep("OpenText", names(funcs))],
 
 <note>THIS IS INCORRECT. Everything seems to be hidden,i.e.
 every function in every type.</note>
-
+</para>
 
 <question>Do any of these sometimes relate to properties?</question>
 
-
+<para>
 Let's look at the Open method.
 <s:code>
  open = funcs$Open
@@ -218,7 +220,6 @@ Let's look at the Open method.
 This is an instance of the 
 <s:class>FunctionInvokeDescription</s:class>.
 We can find out more about this class using
-
 <s:code>
 getSlots(class(open))
 </s:code>
@@ -227,7 +228,8 @@ of a function, and a few more.
 The name, the return type, the list of parameters
 are all of the things we need to make sense of the
 function so that we can invoke it.
-
+</para>
+<para>
 The invokeType, hidden and memid 
 (and kind)
 values are internal information that help in actually
@@ -239,20 +241,18 @@ method (func).  These different types of methods are identified by
 different classes of object in R.  We have FunctionInvokeDescription,
 PropertyGetDescription, PropertySetDescription,
 PropertySetRefDescription.
-
+</para>
+<para>
 Accessors that are hidden should not be invoked.
 <question>Are all functions hidden in Application</question>
-
-
-
-
+</para>
 
 </section>
 
 <section>
 <title>COMIDispatch objects</title>
 
-
+<para>
 If we have a COM object, we might want to find out about its available
 methods. For example, if we are not certain what we have, we may want
 to get its type to determine what we can do with it.  Or we may want
@@ -271,7 +271,7 @@ from the object using
 We can also call 
 <s:func>getFuncs</s:func> on the object to get the collection of
 functions.
-
+</para>
 </section>
 
 
